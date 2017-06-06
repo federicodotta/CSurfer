@@ -29,6 +29,7 @@ public class BurpExtender implements IHttpListener, ITab {
     private PrintWriter stdout;
     private PrintWriter stderr;	
 	
+    private boolean enabled;
 		
 	/*This method is invoked at startup. It is needed if you are implementing any method of IBurpExtenderCallbacks interface.
 	In this example, we have implemented three such methods of this interface.*/
@@ -45,6 +46,8 @@ public class BurpExtender implements IHttpListener, ITab {
         // Initialize stdout and stderr
         stdout = new PrintWriter(callbacks.getStdout(), true);
         stderr = new PrintWriter(callbacks.getStderr(), true); 
+        
+        enabled = true;
    	 
    	  	// create the UI in a separate thread
 		SwingUtilities.invokeLater(new Runnable() 
@@ -67,6 +70,24 @@ public class BurpExtender implements IHttpListener, ITab {
 						}
 					});
 					
+					//Add save handler to update configurations
+					panel.enableDisableButton.addActionListener(new ActionListener() {											
+
+						@Override
+						public void actionPerformed(ActionEvent arg0) {
+							if(enabled) {
+								panel.enableDisableButton.setText("Enable");
+								enabled = false;
+								stdout.println("*** CSurfer disabled ***");
+							} else {
+								panel.enableDisableButton.setText("Disable");
+								enabled = true;
+								stdout.println("*** CSurfer enabled ***");
+							}
+							
+						}
+					});
+					
 					callbacks.customizeUiComponent(panel);		          		          		        
 					callbacks.addSuiteTab(BurpExtender.this);
 										
@@ -80,24 +101,28 @@ public class BurpExtender implements IHttpListener, ITab {
 	@Override
 	public void processHttpMessage(int toolFlag, boolean isRequest, IHttpRequestResponse messageInfo)			
 	{		
-		IRequestInfo request = myhelpers.analyzeRequest(messageInfo.getRequest());
-		String currentSessionID = this.ExtractSessionID(request);		
 		
-//		stdout.println("Parameter value: " + BurpExtender.CSurferConfigurator.parameter1);
+		if(enabled) {
 		
-		if(isRequest)
-		{				
-			this.UpdateAntiCSRFToken(request, messageInfo, currentSessionID);							
-		}
-		else //Response
-		{
-			IResponseInfo response = myhelpers.analyzeResponse(messageInfo.getResponse());
-			this.UpdateAntiCSRFToken(response, messageInfo, currentSessionID);									
+			IRequestInfo request = myhelpers.analyzeRequest(messageInfo.getRequest());
+			String currentSessionID = this.ExtractSessionID(request);		
+			
+	//		stdout.println("Parameter value: " + BurpExtender.CSurferConfigurator.parameter1);
+			
+			if(isRequest)
+			{				
+				this.UpdateAntiCSRFToken(request, messageInfo, currentSessionID);							
+			}
+			else //Response
+			{
+				IResponseInfo response = myhelpers.analyzeResponse(messageInfo.getResponse());
+				this.UpdateAntiCSRFToken(response, messageInfo, currentSessionID);									
+			}
+			
 		}
 	
 	}
-
-
+	
 
 	private String ExtractSessionID(IRequestInfo request) 
 	{

@@ -1,12 +1,14 @@
 package burp;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridLayout;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -20,16 +22,32 @@ public class CSurferJpanel extends JPanel
 	public JTextField sessionIDTextField;
 	public JTextField tokenResponseRegexTextField;
 	public JTextField tokenMatchGroupTextField;
-	
+		
 	public JButton saveButton;
+	public JButton enableDisableButton;
+	public JButton exportConfigButton;
+	public JButton loadConfigButton;
 	
 	public CSurferJpanel()
 	{
 		
 		this.setLayout(new GridLayout(0, 1, 0, 0));
 		
+		JPanel buttonsPanel = new JPanel();
+		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.X_AXIS));
+		buttonsPanel.setAlignmentX(Component.LEFT_ALIGNMENT); 
+		
 		this.saveButton = new JButton();
 		this.saveButton.setText("Save");
+		
+		this.enableDisableButton = new JButton();
+		this.enableDisableButton.setText("Disable");
+		
+		this.exportConfigButton = new JButton();
+		this.exportConfigButton.setText("Export config");
+		
+		this.loadConfigButton = new JButton();
+		this.loadConfigButton.setText("Load config");
 		
 		this.maxSessionsTextField = new JTextField("", 20);				
 		JLabel maxSessionsLabel = new JLabel("Maximum number of sessions");		
@@ -50,7 +68,7 @@ public class CSurferJpanel extends JPanel
 		this.tokenMatchGroupTextField = new JTextField("", 20);
 		JLabel tokenMatchGroupLabel = new JLabel("The match group number inside the regex");
 		tokenMatchGroupLabel.setLabelFor(tokenMatchGroupTextField);
-			
+		
 				
 		this.add(maxSessionsLabel);
 		this.add(maxSessionsTextField);
@@ -68,8 +86,12 @@ public class CSurferJpanel extends JPanel
 		this.add(tokenMatchGroupLabel);
 		this.add(tokenMatchGroupTextField);
 		
+		buttonsPanel.add(saveButton);
+		buttonsPanel.add(enableDisableButton);
+		//buttonsPanel.add(exportConfigButton);
+		//buttonsPanel.add(loadConfigButton);
 		
-		this.add(saveButton);
+		this.add(buttonsPanel);
 				
 
 	}
