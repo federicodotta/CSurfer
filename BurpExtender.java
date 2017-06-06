@@ -4,6 +4,12 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +17,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.Action;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -70,7 +78,7 @@ public class BurpExtender implements IHttpListener, ITab {
 						}
 					});
 					
-					//Add save handler to update configurations
+					//Add enable/disable handler
 					panel.enableDisableButton.addActionListener(new ActionListener() {											
 
 						@Override
@@ -84,6 +92,28 @@ public class BurpExtender implements IHttpListener, ITab {
 								enabled = true;
 								stdout.println("*** CSurfer enabled ***");
 							}
+							
+						}
+					});
+					
+					//Add export configurations handler
+					panel.exportConfigButton.addActionListener(new ActionListener() {											
+
+						@Override
+						public void actionPerformed(ActionEvent arg0) {
+
+							exportConfigurations();
+							
+						}
+					});
+					
+					//Add load configurations handler
+					panel.loadConfigButton.addActionListener(new ActionListener() {											
+
+						@Override
+						public void actionPerformed(ActionEvent arg0) {
+							
+							loadConfigurations();
 							
 						}
 					});
@@ -121,6 +151,77 @@ public class BurpExtender implements IHttpListener, ITab {
 			
 		}
 	
+	}
+	
+	private void exportConfigurations() {
+				
+		JFrame parentFrame = new JFrame();
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Configuration output file");
+		
+		int userSelection = fileChooser.showSaveDialog(parentFrame);
+		
+		if(userSelection == JFileChooser.APPROVE_OPTION) {
+						
+			File outputFile = fileChooser.getSelectedFile();
+			FileWriter fw;
+			try {
+				fw = new FileWriter(outputFile);
+				
+				fw.write("" + BurpExtender.CSurferConfigurator.MAX_NUM_SESSIONS + "\n");
+				fw.write(BurpExtender.CSurferConfigurator.ANTI_CSRF_TOKEN_NAME + "\n");
+				fw.write(BurpExtender.CSurferConfigurator.SESSION_ID_NAME + "\n");
+				fw.write(BurpExtender.CSurferConfigurator.ANTI_CSRF_RESPONSE_REGEX + "\n");
+				fw.write("" + BurpExtender.CSurferConfigurator.ANTI_CSRF_RESPONSE_REGEX_MATCH_GROUP + "\n");
+							 
+				fw.close();
+			} catch (IOException e) {
+				stderr.println("ERROR");
+				stderr.println(e.toString());
+				return;
+			}			
+				
+		}
+		
+	}
+	
+	private void loadConfigurations() {
+		
+		JFrame parentFrame = new JFrame();
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Configuration input file");
+		
+		int userSelection = fileChooser.showSaveDialog(parentFrame);
+		
+		if(userSelection == JFileChooser.APPROVE_OPTION) {
+			
+			File inputFile = fileChooser.getSelectedFile();
+						
+			try {
+				
+				BufferedReader br = new BufferedReader(new FileReader(inputFile));
+				 				
+				BurpExtender.CSurferConfigurator.MAX_NUM_SESSIONS = Integer.parseInt(br.readLine());
+				panel.maxSessionsTextField.setText("" + BurpExtender.CSurferConfigurator.MAX_NUM_SESSIONS);
+				BurpExtender.CSurferConfigurator.ANTI_CSRF_TOKEN_NAME = br.readLine();
+				panel.tokenNameTextField.setText(BurpExtender.CSurferConfigurator.ANTI_CSRF_TOKEN_NAME);
+				BurpExtender.CSurferConfigurator.SESSION_ID_NAME = br.readLine();
+				panel.sessionIDTextField.setText(BurpExtender.CSurferConfigurator.SESSION_ID_NAME);
+				BurpExtender.CSurferConfigurator.ANTI_CSRF_RESPONSE_REGEX = br.readLine();
+				panel.tokenResponseRegexTextField.setText(BurpExtender.CSurferConfigurator.ANTI_CSRF_RESPONSE_REGEX);
+				BurpExtender.CSurferConfigurator.ANTI_CSRF_RESPONSE_REGEX_MATCH_GROUP = Integer.parseInt(br.readLine());
+				panel.tokenMatchGroupTextField.setText("" + BurpExtender.CSurferConfigurator.ANTI_CSRF_RESPONSE_REGEX_MATCH_GROUP);
+			 				
+				br.close();
+				
+			} catch (Exception e) {
+				stderr.println("ERROR");
+				stderr.println(e.toString());
+				return;
+			}
+			
+			
+		}
 	}
 	
 

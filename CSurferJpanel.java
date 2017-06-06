@@ -88,8 +88,8 @@ public class CSurferJpanel extends JPanel
 		
 		buttonsPanel.add(saveButton);
 		buttonsPanel.add(enableDisableButton);
-		//buttonsPanel.add(exportConfigButton);
-		//buttonsPanel.add(loadConfigButton);
+		buttonsPanel.add(exportConfigButton);
+		buttonsPanel.add(loadConfigButton);
 		
 		this.add(buttonsPanel);
 				
