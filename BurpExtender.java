@@ -36,7 +36,7 @@ public class BurpExtender implements IHttpListener, ITab {
 	{
 		mycallbacks = callbacks;
 		myhelpers = mycallbacks.getHelpers();
-   	  	callbacks.setExtensionName("Burp Proxy Modifier");
+   	  	callbacks.setExtensionName("CSurfer");
    	  	BurpExtender.CSurferConfigurator = new CSurferConfigurations();
    	  	
    	  	callbacks.registerHttpListener(this);
