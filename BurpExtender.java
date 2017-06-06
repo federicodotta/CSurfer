@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -25,6 +26,9 @@ public class BurpExtender implements IHttpListener, ITab {
 	private CSurferJpanel panel;
 	public static CSurferConfigurations CSurferConfigurator;
 	
+    private PrintWriter stdout;
+    private PrintWriter stderr;	
+	
 		
 	/*This method is invoked at startup. It is needed if you are implementing any method of IBurpExtenderCallbacks interface.
 	In this example, we have implemented three such methods of this interface.*/
@@ -36,8 +40,11 @@ public class BurpExtender implements IHttpListener, ITab {
    	  	BurpExtender.CSurferConfigurator = new CSurferConfigurations();
    	  	
    	  	callbacks.registerHttpListener(this);
-   	  	this.latestAntiCSRFTokens = new CSurferTokenJar();
-	    
+   	  	this.latestAntiCSRFTokens = new CSurferTokenJar(callbacks);
+   	  	
+        // Initialize stdout and stderr
+        stdout = new PrintWriter(callbacks.getStdout(), true);
+        stderr = new PrintWriter(callbacks.getStderr(), true); 
    	 
    	  	// create the UI in a separate thread
 		SwingUtilities.invokeLater(new Runnable() 
@@ -76,7 +83,7 @@ public class BurpExtender implements IHttpListener, ITab {
 		IRequestInfo request = myhelpers.analyzeRequest(messageInfo.getRequest());
 		String currentSessionID = this.ExtractSessionID(request);		
 		
-//		System.out.println("Parameter value: " + BurpExtender.CSurferConfigurator.parameter1);
+//		stdout.println("Parameter value: " + BurpExtender.CSurferConfigurator.parameter1);
 		
 		if(isRequest)
 		{				
@@ -131,11 +138,11 @@ public class BurpExtender implements IHttpListener, ITab {
 			switch(status)
 			{		
 			case TOKEN_ADDED:
-				System.out.println("Token found in response: " + newTokenValue + ". Added for session ID " + sessionID);
+				stdout.println("Token found in response: " + newTokenValue + ". Added for session ID " + sessionID);
 				
 				break;
 			case TOKEN_UPDATED:
-				System.out.println("Token found in response: " + newTokenValue + ". Updated for session ID " + sessionID);			
+				stdout.println("Token found in response: " + newTokenValue + ". Updated for session ID " + sessionID);			
 				break;
 			default:
 				throw new UnknownError();			
@@ -145,11 +152,11 @@ public class BurpExtender implements IHttpListener, ITab {
 			
 			switch (status) {
 			case TOKENS_GARBAGE_COLLECTED:
-				System.out.println("Tokens garbage collector: succefully cleaned.");
+				stdout.println("Tokens garbage collector: succefully cleaned.");
 				break;
 
 			case TOKENS_LESS_THAN_MAX:
-				System.out.println("Tokens garbage collector: tokens less than max.");
+				stdout.println("Tokens garbage collector: tokens less than max.");
 				break;
 				
 			default:
@@ -196,7 +203,7 @@ public class BurpExtender implements IHttpListener, ITab {
 					
 					messageInfo.setRequest(myhelpers.updateParameter(
 						messageInfo.getRequest(), newParameter));
-					System.out.println("Token updated in reqeust: " + currentTokenValue + " for session ID: " + sessionID);
+					stdout.println("Token updated in reqeust: " + currentTokenValue + " for session ID: " + sessionID);
 				}
 
 				//Stop inspecting further parameters

@@ -7,10 +7,12 @@ public class CSurferTokenJar
 	
 	
 	public ArrayList<AntiCSRFToken> tokens;
+	private IBurpExtenderCallbacks burpCallbacks;
 	
-	public CSurferTokenJar()
+	public CSurferTokenJar(IBurpExtenderCallbacks burpCallbacks)
 	{
 		this.tokens = new ArrayList<>();
+		this.burpCallbacks = burpCallbacks;
 	}
 		
 	
@@ -31,7 +33,7 @@ public class CSurferTokenJar
 		}
 		
 		//otherwise, session not present, then add it
-		AntiCSRFToken newToken = new AntiCSRFToken(tokenValue, sessionID);
+		AntiCSRFToken newToken = new AntiCSRFToken(tokenValue, sessionID, burpCallbacks);
 		this.tokens.add(newToken);
 		return AntiCSRFTokenStatus.TOKEN_ADDED;
 		
